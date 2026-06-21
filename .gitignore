@@ -104,3 +104,11 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Local AI tooling / orchestrator cache (not project source)
+.atl/
+
+# OS noise
+Thumbs.db
+desktop.ini
+.DS_Store
