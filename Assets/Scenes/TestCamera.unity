@@ -432,7 +432,7 @@ GameObject:
   - component: {fileID: 1368700461}
   - component: {fileID: 1368700460}
   - component: {fileID: 1368700459}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -695,7 +695,7 @@ MonoBehaviour:
   velocidadFlip: 10
   capaSuelo:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   rayLength: 0.3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
