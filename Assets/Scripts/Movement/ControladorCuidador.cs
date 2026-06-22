@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+
 
 public class ControladorCuidador : MonoBehaviour
 {
@@ -30,8 +32,18 @@ public class ControladorCuidador : MonoBehaviour
 
     void Update()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        float h = 0f;
+        float v = 0f;
+
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard != null)
+        {
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) h -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) h += 1f;
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) v += 1f;
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) v -= 1f;
+        }
 
         // Movimiento relativo a la camara
         Vector3 adelante = new Vector3(camara.forward.x, 0, camara.forward.z).normalized;
@@ -58,7 +70,7 @@ public class ControladorCuidador : MonoBehaviour
             spriteTransform.rotation, targetRot, velocidadFlip * Time.deltaTime);
 
         // Salto
-        if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
+        if (keyboard != null && keyboard.spaceKey.wasPressedThisFrame && enSuelo)
         {
             rb.linearVelocity = new Vector3(
                 rb.linearVelocity.x, fuerzaSalto, rb.linearVelocity.z);
