@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject petCarePanel;
     [SerializeField] private GameObject minigamePanel;
 
+    private AnimalOwnershipLedger ledger;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,6 +28,7 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        ledger = new AnimalOwnershipLedger();
     }
 
     private void Start()
@@ -48,8 +51,9 @@ public class GameManager : MonoBehaviour
     public void OpenMinigame() => SetState(UIState.Minigame);
     public void OpenPetCare() => SetState(UIState.PetCare);
 
-    public void OnCaptureSucceeded(AnimalSpecies species, string ledgerRecordId = null, Sprite icon = null)
+    public void OnCaptureSucceeded(AnimalSpecies species, Sprite icon = null)
     {
+        string ledgerRecordId = ledger.AddCapture(species);
         CapturedAnimals.Add(new CapturedAnimalRecord(species, ledgerRecordId, icon));
 
         if (NearbyAnimal != null && NearbyAnimal.Species == species)
