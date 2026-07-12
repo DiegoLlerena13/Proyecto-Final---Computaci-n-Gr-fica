@@ -5,7 +5,7 @@ public enum MovementMode { Joystick, GPS }
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Mode")]
-    public MovementMode mode = MovementMode.GPS;
+    public MovementMode mode = MovementMode.Joystick;
 
     [Header("Movement")]
     public float moveSpeed = 5f;
