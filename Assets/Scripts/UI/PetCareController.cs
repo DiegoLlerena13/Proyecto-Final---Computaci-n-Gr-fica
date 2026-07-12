@@ -7,6 +7,8 @@ public class PetCareController : MonoBehaviour
     [SerializeField] private GameObject petCareStage;
     [SerializeField] private Transform animalStandPoint;
     [SerializeField] private Button backButton;
+    [SerializeField] private Camera petCareCamera;
+    [SerializeField] private ControladorCuidador cuidador;
 
     private GameObject spawnedAnimal;
 
@@ -19,6 +21,9 @@ public class PetCareController : MonoBehaviour
     {
         if (mainCamera != null) mainCamera.SetActive(false);
         if (petCareStage != null) petCareStage.SetActive(true);
+
+        if (cuidador != null && petCareCamera != null)
+            cuidador.SetCamera(petCareCamera.transform);
 
         if (GameManager.Instance == null || animalStandPoint == null) return;
 

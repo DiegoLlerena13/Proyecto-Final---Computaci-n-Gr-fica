@@ -27,11 +27,19 @@ public class ControladorCuidador : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        camara = Camera.main.transform;
+        if (camara == null && Camera.main != null)
+            camara = Camera.main.transform;
+    }
+
+    public void SetCamera(Transform camera)
+    {
+        camara = camera;
     }
 
     void Update()
     {
+        if (camara == null) return;
+
         float h = 0f;
         float v = 0f;
 
