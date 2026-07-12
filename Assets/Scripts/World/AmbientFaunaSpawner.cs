@@ -32,7 +32,10 @@ public static class AmbientFaunaSpawner
 
             var instance = Object.Instantiate(prefab, parent);
             instance.transform.localPosition = new Vector3(x, 0f, z);
-            instance.transform.localRotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f);
+            // These are flat paper-cutout sprites, not real 3D models - a random full
+            // spin would face many of them edge-on to the camera (near-invisible sliver).
+            // Only flip left/right, like their own walk-animation convention does.
+            instance.transform.localRotation = Quaternion.Euler(0f, rng.Next(2) == 0 ? 0f : 180f, 0f);
 
             var animalInstance = instance.GetComponent<AnimalInstance>();
             if (animalInstance == null)
