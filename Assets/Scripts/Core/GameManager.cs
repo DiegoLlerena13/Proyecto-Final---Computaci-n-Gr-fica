@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     public UIState CurrentState { get; private set; } = UIState.World;
     public readonly List<CapturedAnimalRecord> CapturedAnimals = new();
+    public AnimalInstance NearbyAnimal { get; set; }
 
     [SerializeField] private GameObject worldPanel;
     [SerializeField] private GameObject arCapturePanel;
@@ -50,6 +51,14 @@ public class GameManager : MonoBehaviour
     public void OnCaptureSucceeded(AnimalSpecies species, string ledgerRecordId = null, Sprite icon = null)
     {
         CapturedAnimals.Add(new CapturedAnimalRecord(species, ledgerRecordId, icon));
+
+        if (NearbyAnimal != null && NearbyAnimal.Species == species)
+        {
+            NearbyAnimal.Captured = true;
+            NearbyAnimal.gameObject.SetActive(false);
+            NearbyAnimal = null;
+        }
+
         SetState(UIState.World);
     }
 }
