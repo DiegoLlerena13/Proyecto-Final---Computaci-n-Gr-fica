@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public UIState CurrentState { get; private set; } = UIState.World;
     public readonly List<CapturedAnimalRecord> CapturedAnimals = new();
     public AnimalInstance NearbyAnimal { get; set; }
+    public AnimalSpecies PetCareSpecies { get; private set; }
 
     [SerializeField] private GameObject worldPanel;
     [SerializeField] private GameObject arCapturePanel;
@@ -51,7 +52,19 @@ public class GameManager : MonoBehaviour
 
     public void OpenCapture() => SetState(UIState.ARCapture);
     public void OpenMenagerie() => SetState(UIState.Menagerie);
-    public void OpenPetCare() => SetState(UIState.PetCare);
+    public void ReturnToWorld() => SetState(UIState.World);
+
+    public void OpenPetCare(AnimalSpecies species)
+    {
+        PetCareSpecies = species;
+        SetState(UIState.PetCare);
+    }
+
+    public void OpenPetCare()
+    {
+        if (NearbyAnimal == null) return;
+        OpenPetCare(NearbyAnimal.Species);
+    }
 
     public void OpenMinigame()
     {
