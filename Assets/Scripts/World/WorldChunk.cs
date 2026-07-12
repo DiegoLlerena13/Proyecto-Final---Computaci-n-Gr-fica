@@ -21,6 +21,7 @@ public class WorldChunk : MonoBehaviour
         var biomeDef = BiomeConfig.Get(biome);
         CreateGround(chunkSize, biomeDef.groundColor);
         SpawnDecorations(coords, chunkSize, biomeDef);
+        AmbientFaunaSpawner.SpawnFauna(transform, coords, chunkSize);
     }
 
     private void CreateGround(float size, Color color)
