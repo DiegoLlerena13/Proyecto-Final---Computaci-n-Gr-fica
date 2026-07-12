@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public enum UIState { World, ARCapture, Menagerie, PetCare, Minigame }
+
+    private const string MinigameSceneName = "TapMinigame";
 
     public static GameManager Instance { get; private set; }
 
@@ -48,8 +51,19 @@ public class GameManager : MonoBehaviour
 
     public void OpenCapture() => SetState(UIState.ARCapture);
     public void OpenMenagerie() => SetState(UIState.Menagerie);
-    public void OpenMinigame() => SetState(UIState.Minigame);
     public void OpenPetCare() => SetState(UIState.PetCare);
+
+    public void OpenMinigame()
+    {
+        SetState(UIState.Minigame);
+        SceneManager.LoadScene(MinigameSceneName, LoadSceneMode.Additive);
+    }
+
+    public void OnMinigameFinished(int score)
+    {
+        SceneManager.UnloadSceneAsync(MinigameSceneName);
+        SetState(UIState.World);
+    }
 
     public void OnCaptureSucceeded(AnimalSpecies species, Sprite icon = null)
     {
