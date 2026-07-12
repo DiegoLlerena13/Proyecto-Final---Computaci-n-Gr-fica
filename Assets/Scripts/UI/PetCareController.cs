@@ -22,7 +22,7 @@ public class PetCareController : MonoBehaviour
 
         if (GameManager.Instance == null || animalStandPoint == null) return;
 
-        var prefab = Resources.Load<GameObject>($"Animals/{GameManager.Instance.PetCareSpecies}");
+        var prefab = AnimalResources.Load(GameManager.Instance.PetCareSpecies);
         if (prefab == null) return;
 
         spawnedAnimal = Instantiate(prefab, animalStandPoint.position, animalStandPoint.rotation);

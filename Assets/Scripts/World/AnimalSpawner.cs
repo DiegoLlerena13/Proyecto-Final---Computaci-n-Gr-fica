@@ -4,7 +4,10 @@ using UnityEngine;
 public static class AnimalSpawner
 {
     private static readonly AnimalSpecies[] AllSpecies =
-        (AnimalSpecies[])System.Enum.GetValues(typeof(AnimalSpecies));
+    {
+        AnimalSpecies.Chicken, AnimalSpecies.Deer, AnimalSpecies.Dog, AnimalSpecies.Horse,
+        AnimalSpecies.Kitty, AnimalSpecies.Pinguin, AnimalSpecies.Tiger
+    };
 
     private static readonly Dictionary<AnimalSpecies, GameObject> prefabCache = new();
 
@@ -39,9 +42,9 @@ public static class AnimalSpawner
         if (prefabCache.TryGetValue(species, out var cached))
             return cached;
 
-        var prefab = Resources.Load<GameObject>($"Animals/{species}");
+        var prefab = AnimalResources.Load(species);
         if (prefab == null)
-            Debug.LogWarning($"[AnimalSpawner] Model not found: Animals/{species}");
+            Debug.LogWarning($"[AnimalSpawner] Model not found for {species}");
 
         prefabCache[species] = prefab;
         return prefab;

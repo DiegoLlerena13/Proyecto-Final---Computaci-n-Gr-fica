@@ -3,14 +3,15 @@ using UnityEngine;
 
 public static class AmbientFaunaSpawner
 {
-    private static readonly string[] Species =
+    private static readonly AnimalSpecies[] Species =
     {
-        "BirdFly", "Conejo", "Cuervo", "Paloma", "PerroLadrando", "Pinguino",
-        "SerpienteAzul", "SerpienteBlanca", "SerpienteCorn", "SerpienteMarron",
-        "SerpienteRoja", "SerpienteVerde", "YellowBird"
+        AnimalSpecies.BirdFly, AnimalSpecies.Conejo, AnimalSpecies.Cuervo, AnimalSpecies.Paloma,
+        AnimalSpecies.PerroLadrando, AnimalSpecies.Pinguino, AnimalSpecies.SerpienteAzul,
+        AnimalSpecies.SerpienteBlanca, AnimalSpecies.SerpienteCorn, AnimalSpecies.SerpienteMarron,
+        AnimalSpecies.SerpienteRoja, AnimalSpecies.SerpienteVerde, AnimalSpecies.YellowBird
     };
 
-    private static readonly Dictionary<string, GameObject> prefabCache = new();
+    private static readonly Dictionary<AnimalSpecies, GameObject> prefabCache = new();
 
     public static void SpawnFauna(Transform parent, Vector2Int coords, float chunkSize)
     {
@@ -22,7 +23,7 @@ public static class AmbientFaunaSpawner
 
         for (int i = 0; i < count; i++)
         {
-            string species = Species[rng.Next(Species.Length)];
+            var species = Species[rng.Next(Species.Length)];
             var prefab = LoadFauna(species);
             if (prefab == null) continue;
 
@@ -32,19 +33,24 @@ public static class AmbientFaunaSpawner
             var instance = Object.Instantiate(prefab, parent);
             instance.transform.localPosition = new Vector3(x, 0f, z);
             instance.transform.localRotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f);
+
+            var animalInstance = instance.GetComponent<AnimalInstance>();
+            if (animalInstance == null)
+                animalInstance = instance.AddComponent<AnimalInstance>();
+            animalInstance.Initialize(species);
         }
     }
 
-    private static GameObject LoadFauna(string name)
+    private static GameObject LoadFauna(AnimalSpecies species)
     {
-        if (prefabCache.TryGetValue(name, out var cached))
+        if (prefabCache.TryGetValue(species, out var cached))
             return cached;
 
-        var prefab = Resources.Load<GameObject>($"Fauna/{name}");
+        var prefab = Resources.Load<GameObject>($"Fauna/{species}");
         if (prefab == null)
-            Debug.LogWarning($"[AmbientFaunaSpawner] Model not found: Fauna/{name}");
+            Debug.LogWarning($"[AmbientFaunaSpawner] Model not found: Fauna/{species}");
 
-        prefabCache[name] = prefab;
+        prefabCache[species] = prefab;
         return prefab;
     }
 }
