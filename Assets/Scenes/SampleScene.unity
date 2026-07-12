@@ -1231,7 +1231,7 @@ GameObject:
   - component: {fileID: 581433559}
   - component: {fileID: 581433562}
   - component: {fileID: 581433561}
-  - component: {fileID: 581433560}
+  - component: {fileID: 581433563}
   m_Layer: 0
   m_Name: Ground Plane Stage
   m_TagString: Untagged
@@ -1254,23 +1254,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1186720183}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &581433560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 581433558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1308684972, guid: 8a9a760f95896c34689febc965510927, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Vuforia.Unity.Engine.dll::Vuforia.AnchorPreview
-  mObserverBehaviour: {fileID: 581433562}
-  mHiddenRoot: {fileID: 0}
-  mTargetName: 
-  mDatasetName: 
-  mCastedBehaviour: {fileID: 581433562}
 --- !u!114 &581433561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1335,7 +1318,24 @@ MonoBehaviour:
   mSelectedStageType: 0
   mPlaneReference: {fileID: 0}
   mMidAirReference: {fileID: 0}
-  mPreview: {fileID: 581433560}
+  mPreview: {fileID: 581433563}
+--- !u!114 &581433563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 581433558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1308684972, guid: 8a9a760f95896c34689febc965510927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Vuforia.Unity.Engine.dll::Vuforia.AnchorPreview
+  mObserverBehaviour: {fileID: 581433562}
+  mHiddenRoot: {fileID: 0}
+  mTargetName: 
+  mDatasetName: 
+  mCastedBehaviour: {fileID: 581433562}
 --- !u!1 &595399024
 GameObject:
   m_ObjectHideFlags: 0

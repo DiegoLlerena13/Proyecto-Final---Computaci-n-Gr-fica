@@ -57,6 +57,8 @@ public class AnimadorSprite : MonoBehaviour
 
     void AvanzarFrame()
     {
+        if (animActual == null || animActual.Length == 0) return;
+
         timer += Time.deltaTime;
         if (timer >= 1f / fps)
         {
@@ -68,6 +70,7 @@ public class AnimadorSprite : MonoBehaviour
 
     void CambiarAnim(Sprite[] nueva)
     {
+        if (nueva == null || nueva.Length == 0) return;
         if (animActual == nueva) return;
         animActual = nueva;
         frameActual = 0;
