@@ -17,6 +17,7 @@ public class ActionButtonsHUD : MonoBehaviour
     private void Update()
     {
         bool hasNearbyAnimal = GameManager.Instance != null && GameManager.Instance.NearbyAnimal != null;
+        if (captureButton != null) captureButton.interactable = hasNearbyAnimal;
         if (minigameButton != null) minigameButton.interactable = hasNearbyAnimal;
         if (playButton != null) playButton.interactable = hasNearbyAnimal;
     }

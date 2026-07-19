@@ -24,4 +24,16 @@ public static class AnimalResources
         string folder = Is2D(species) ? "Fauna" : "Animals";
         return Resources.Load<GameObject>($"{folder}/{species}");
     }
+
+    public static void EnsureBoxCollider(GameObject go)
+    {
+        if (go.GetComponentInChildren<Collider>() != null) return;
+
+        var renderer = go.GetComponentInChildren<Renderer>();
+        if (renderer == null) return;
+
+        var box = go.AddComponent<BoxCollider>();
+        box.center = go.transform.InverseTransformPoint(renderer.bounds.center);
+        box.size = renderer.bounds.size;
+    }
 }

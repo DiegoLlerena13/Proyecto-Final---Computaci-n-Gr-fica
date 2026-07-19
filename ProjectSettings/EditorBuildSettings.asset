@@ -12,5 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Minigames/TapMinigame.unity
     guid: 529f29b0889fcea47bc54db24a98e2e2
   m_configObjects:
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 73383ee733a11f24bbe0036c91eeac52, type: 2}
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: c82a66bbd13a7ca44b40404f5c4ab315, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 028702a5153e42348961786bbc825bcf, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: d850c9cd072ed234f9a7b5aebdd212bd, type: 2}

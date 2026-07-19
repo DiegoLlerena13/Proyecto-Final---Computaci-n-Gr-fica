@@ -18,6 +18,7 @@ public class ControladorCuidador : MonoBehaviour
 
     private Rigidbody rb;
     private Transform camara;
+    private VirtualJoystick joystick;
     private bool enSuelo = false;
     private bool girado = false;
 
@@ -27,6 +28,7 @@ public class ControladorCuidador : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        joystick = FindFirstObjectByType<VirtualJoystick>();
         if (camara == null && Camera.main != null)
             camara = Camera.main.transform;
     }
@@ -52,6 +54,16 @@ public class ControladorCuidador : MonoBehaviour
             if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) v += 1f;
             if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) v -= 1f;
         }
+
+        if (joystick != null)
+        {
+            Vector2 stick = joystick.InputDirection;
+            h += stick.x;
+            v += stick.y;
+        }
+
+        h = Mathf.Clamp(h, -1f, 1f);
+        v = Mathf.Clamp(v, -1f, 1f);
 
         // Movimiento relativo a la camara
         Vector3 adelante = new Vector3(camara.forward.x, 0, camara.forward.z).normalized;

@@ -67,5 +67,7 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Proyecto-Final---Computaci-n-Gr-fica.slnx"
+    "dotnet.defaultSolution": "Proyecto-Final---Computaci-n-Gr-fica.slnx",
+    "snyk.advanced.organization": "c728cbfd-dcd1-491d-bb47-f78008f23453",
+    "snyk.advanced.autoSelectOrganization": true
 }
