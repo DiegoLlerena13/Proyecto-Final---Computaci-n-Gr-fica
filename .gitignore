@@ -117,6 +117,11 @@ InitTestScene*.unity*
 
 # Local AI tooling / orchestrator cache (not project source)
 .atl/
+.codegraph/
+
+# Unity crash-recovery auto-save scenes (not real project content)
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
 
 # OS noise
 Thumbs.db
