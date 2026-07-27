@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Vector3 offset = new Vector3(0f, 12f, -8f);
+    public Vector3 offset = new Vector3(0f, 3f, -6.5f);
     public float smoothSpeed = 5f;
-    public float lookAheadDistance = 2f;
+    public float lookAheadDistance = 3f;
 
     private Transform target;
 

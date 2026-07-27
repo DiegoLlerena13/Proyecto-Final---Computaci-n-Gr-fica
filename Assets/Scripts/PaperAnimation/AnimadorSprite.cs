@@ -13,6 +13,7 @@ public class AnimadorSprite : MonoBehaviour
 
     private SpriteRenderer sr;
     private Rigidbody rb;
+    private CharacterController cc;
     private Sprite[] animActual;
     private int frameActual = 0;
     private float timer = 0f;
@@ -24,6 +25,10 @@ public class AnimadorSprite : MonoBehaviour
     {
         sr = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponentInParent<Rigidbody>();
+        // Falls back to CharacterController.velocity when there's no Rigidbody - lets this same
+        // sprite animator drive visuals for the joystick/GPS-driven world Player (which moves via
+        // CharacterController.Move, not physics) without needing a second animator script.
+        if (rb == null) cc = GetComponentInParent<CharacterController>();
         animActual = idle;
     }
 
@@ -47,8 +52,9 @@ public class AnimadorSprite : MonoBehaviour
             return;
         }
 
-        float velH = new Vector2(rb.linearVelocity.x, rb.linearVelocity.z).magnitude;
-        bool enAire = Mathf.Abs(rb.linearVelocity.y) > 1f;
+        Vector3 velocity = rb != null ? rb.linearVelocity : (cc != null ? cc.velocity : Vector3.zero);
+        float velH = new Vector2(velocity.x, velocity.z).magnitude;
+        bool enAire = Mathf.Abs(velocity.y) > 1f;
 
         if (enAire) CambiarAnim(jump);
         else if (velH > 0.2f) CambiarAnim(run);

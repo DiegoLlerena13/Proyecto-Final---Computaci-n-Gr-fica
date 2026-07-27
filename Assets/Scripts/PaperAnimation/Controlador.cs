@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Controlador : MonoBehaviour
 {
@@ -35,11 +36,19 @@ public class Controlador : MonoBehaviour
     void Update()
     {
         // Input
-        moveInput.x = Input.GetAxis("Horizontal");
-        moveInput.y = Input.GetAxis("Vertical");
+        moveInput = Vector2.zero;
+        Keyboard keyboard = Keyboard.current;
 
-        if (Input.GetKeyDown(KeyCode.Space) && grounded)
-            jumpInput = true;
+        if (keyboard != null)
+        {
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) moveInput.x -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) moveInput.x += 1f;
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) moveInput.y += 1f;
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) moveInput.y -= 1f;
+
+            if (keyboard.spaceKey.wasPressedThisFrame && grounded)
+                jumpInput = true;
+        }
 
         // Back turned
         if (!backTurned && moveInput.y > 0f)

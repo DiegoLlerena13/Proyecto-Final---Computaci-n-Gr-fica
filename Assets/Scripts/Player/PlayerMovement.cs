@@ -9,13 +9,20 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed = 5f;
-    public float rotationSpeed = 720f;
     public float gpsSmoothing = 5f;
+
+    [Header("Paper Sprite Flip")]
+    [SerializeField] private Transform spriteTransform;
+    public float flipSpeed = 10f;
+
+    private static readonly Quaternion FacingRight = Quaternion.identity;
+    private static readonly Quaternion FacingLeft = Quaternion.Euler(0f, 180f, 0f);
 
     private CharacterController controller;
     private VirtualJoystick joystick;
     private GPSLocator gps;
     private Vector3 gpsTargetPosition;
+    private bool facingLeft;
 
     private void Awake()
     {
@@ -29,6 +36,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (gps == null)
             gps = gameObject.AddComponent<GPSLocator>();
+
+        // The teammate-authored Player.prefab is a flat paper cutout with no "back" artwork -
+        // spriteTransform is auto-resolved instead of requiring manual Inspector wiring, matching
+        // this session's established preference for auto-resolved refs over fragile serialized ones.
+        if (spriteTransform == null)
+        {
+            var spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+                spriteTransform = spriteRenderer.transform;
+        }
 
         #if UNITY_EDITOR
         if (mode == MovementMode.GPS)
@@ -50,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
                 HandleGPS();
                 break;
         }
+
+        UpdateSpriteFacing();
     }
 
     private void HandleJoystick()
@@ -57,12 +76,8 @@ public class PlayerMovement : MonoBehaviour
         Vector2 input = joystick != null ? joystick.InputDirection : Vector2.zero;
         Vector3 moveDir = new Vector3(input.x, 0f, input.y);
 
-        if (moveDir.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDir, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
+        if (Mathf.Abs(input.x) > 0.1f)
+            facingLeft = input.x < 0f;
 
         float gravity = controller.isGrounded ? -0.5f : -9.81f * Time.deltaTime;
         Vector3 velocity = moveDir * moveSpeed + Vector3.up * gravity;
@@ -78,13 +93,22 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 direction = gpsTargetPosition - transform.position;
 
-        if (direction.sqrMagnitude > 0.1f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
+        if (Mathf.Abs(direction.x) > 0.1f)
+            facingLeft = direction.x < 0f;
 
         transform.position = Vector3.Lerp(transform.position, gpsTargetPosition, gpsSmoothing * Time.deltaTime);
+    }
+
+    // Flat 2D sprite: only mirror left/right (Paper Mario style), never a full 3D yaw rotation -
+    // the same convention ControladorCuidador.cs and the prefab's own Controlador.cs already use
+    // elsewhere in this project. A full rotation has no "back" artwork to show and used to leave
+    // the character edge-on or mirrored depending on which way the camera happened to sit.
+    private void UpdateSpriteFacing()
+    {
+        if (spriteTransform == null) return;
+
+        Quaternion targetRotation = facingLeft ? FacingLeft : FacingRight;
+        spriteTransform.localRotation = Quaternion.Slerp(
+            spriteTransform.localRotation, targetRotation, flipSpeed * Time.deltaTime);
     }
 }
