@@ -60,6 +60,18 @@ namespace ithappy.Animals_FREE
             m_Controller = GetComponent<CharacterController>();
             m_Animator = GetComponent<Animator>();
 
+            // [RequireComponent] only enforces this in the Editor's Add Component menu, not on
+            // objects instantiated at runtime from a prefab that predates the attribute or was
+            // edited without it - AnimalSpawner-spawned world creatures were hitting a
+            // NullReferenceException every single Update() with no indication of which
+            // dependency (or which species) was actually missing.
+            if (m_Controller == null || m_Animator == null)
+            {
+                Debug.LogError($"[CreatureMover] '{name}' is missing its {(m_Controller == null ? "CharacterController" : "Animator")} - disabling instead of throwing every frame.", this);
+                enabled = false;
+                return;
+            }
+
             m_Movement = new MovementHandler(m_Controller, m_Transform, m_WalkSpeed, m_RunSpeed, m_RotateSpeed, m_JumpHeight, m_Space);
             m_Animation = new AnimationHandler(m_Animator, m_VerticalID, m_StateID);
         }
