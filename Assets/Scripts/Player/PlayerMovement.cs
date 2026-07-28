@@ -18,11 +18,14 @@ public class PlayerMovement : MonoBehaviour
     private static readonly Quaternion FacingRight = Quaternion.identity;
     private static readonly Quaternion FacingLeft = Quaternion.Euler(0f, 180f, 0f);
 
+    private const float MinDistanceFromAnimals = 2.5f;
+
     private CharacterController controller;
     private VirtualJoystick joystick;
     private GPSLocator gps;
     private Vector3 gpsTargetPosition;
     private bool facingLeft;
+    private bool hasSnappedToSpawn;
 
     private void Awake()
     {
@@ -58,6 +61,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // Diego's BottomNav does a real SceneManager.LoadScene("00.Mapa") on every "Mapa" tap, not
+        // just a panel toggle - so the Player's baked scene position is a fresh spawn every time,
+        // not just its initial placement. Run this on the first Update() (guaranteed to fire after
+        // every scene object's Start(), including WorldGenerator's, unlike Start() itself whose
+        // relative ordering across objects isn't guaranteed) so the origin chunk already exists.
+        if (!hasSnappedToSpawn)
+        {
+            hasSnappedToSpawn = true;
+            SnapToSpawnGround();
+        }
+
         switch (mode)
         {
             case MovementMode.Joystick:
@@ -97,6 +111,50 @@ public class PlayerMovement : MonoBehaviour
             facingLeft = direction.x < 0f;
 
         transform.position = Vector3.Lerp(transform.position, gpsTargetPosition, gpsSmoothing * Time.deltaTime);
+    }
+
+    // The open world's chunk ground is always a flat plane at world Y=0 (WorldGenerator.CreateChunk
+    // never varies chunk height), so there's no terrain to raycast against - just place the
+    // CharacterController's own bottom (center.y - height/2) exactly on that plane. Without this,
+    // the player spawns wherever it happened to be sitting in the .unity file the last time it was
+    // saved in the Editor, which reliably lands it half-buried since that saved Y rarely matches 0.
+    private void SnapToSpawnGround()
+    {
+        var pos = transform.position;
+        pos.y = -(controller.center.y - controller.height / 2f);
+        transform.position = pos;
+
+        PushAwayFromNearbyAnimals();
+    }
+
+    // The fixed spawn point and the deterministic per-chunk animal seeding (AnimalSpawner /
+    // AmbientFaunaSpawner both hash chunk coordinates) mean the same animal can land right on top
+    // of the spawn point every single time the scene reloads - not a rare fluke, a guaranteed
+    // collision for whichever animal that chunk's seed happens to place nearby.
+    private void PushAwayFromNearbyAnimals()
+    {
+        for (var attempt = 0; attempt < 8; attempt++)
+        {
+            AnimalInstance blocking = null;
+            foreach (var animal in AnimalInstance.Active)
+            {
+                if (animal == null) continue;
+                var toPlayer = transform.position - animal.transform.position;
+                toPlayer.y = 0f;
+                if (toPlayer.sqrMagnitude < MinDistanceFromAnimals * MinDistanceFromAnimals)
+                {
+                    blocking = animal;
+                    break;
+                }
+            }
+
+            if (blocking == null) return;
+
+            var away = transform.position - blocking.transform.position;
+            away.y = 0f;
+            if (away.sqrMagnitude < 0.01f) away = Vector3.forward;
+            transform.position += away.normalized * MinDistanceFromAnimals;
+        }
     }
 
     // Flat 2D sprite: only mirror left/right (Paper Mario style), never a full 3D yaw rotation -
