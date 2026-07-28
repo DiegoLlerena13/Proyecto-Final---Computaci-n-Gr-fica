@@ -5,7 +5,7 @@ public class SceneLoader : MonoBehaviour
 {
     public void IrMapa()
     {
-        SceneManager.LoadScene("00.Mapa");//revisar este nombre
+        SceneManager.LoadScene("00.Mapa");
     }
 
     public void IrMascota()
@@ -25,7 +25,7 @@ public class SceneLoader : MonoBehaviour
 
     public void IrMinijuegoConejo()
     {
-        SceneManager.LoadScene("04.Minigame_Conejo");
+        SceneManager.LoadScene("04.Minigame_conejo");
     }
 
     public void VolverAJuegos()

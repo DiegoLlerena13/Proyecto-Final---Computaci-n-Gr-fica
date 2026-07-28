@@ -6,8 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/00.Mapa.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/AnimalCare/01.Mascota.unity
+    guid: a6f874344554e954f833a1726689a226
+  - enabled: 1
+    path: Assets/Scenes/AnimalCare/02.EcoDex.unity
+    guid: 764b31381a8895d47a7ecbcb0ca37e7f
+  - enabled: 1
+    path: Assets/Scenes/Minigames/03.Juegos.unity
+    guid: 7bf0ff61a7cfc5a4e9cf9e790afd6172
+  - enabled: 1
+    path: Assets/Scenes/Minigames/04.Minigame_conejo.unity
+    guid: a5012fa00a63a1743a5b74b469910ced
   - enabled: 1
     path: Assets/Scenes/Minigames/TapMinigame.unity
     guid: 529f29b0889fcea47bc54db24a98e2e2
