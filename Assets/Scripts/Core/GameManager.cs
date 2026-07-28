@@ -41,6 +41,23 @@ public class GameManager : MonoBehaviour
         SetState(UIState.World);
     }
 
+    // GameManager is DontDestroyOnLoad, but its panel fields above are Inspector-wired to
+    // whichever 00.Mapa scene instance loaded FIRST. Every subsequent SceneManager.LoadScene
+    // ("00.Mapa" from BottomNav's Mapa button) creates a fresh set of panel GameObjects and a
+    // fresh GameManager that immediately self-destructs (see the singleton guard in Awake),
+    // taking its would-be panel references with it - leaving this surviving instance pointing at
+    // panels that no longer exist. MapaPanelRegistrar (on 00.Mapa's UI GameObject) calls this in
+    // its own Awake() every time the scene loads, re-pointing these fields at the current panels.
+    public void RebindMapaPanels(GameObject world, GameObject arCapture, GameObject menagerie, GameObject petCare, GameObject minigame)
+    {
+        worldPanel = world;
+        arCapturePanel = arCapture;
+        menageriePanel = menagerie;
+        petCarePanel = petCare;
+        minigamePanel = minigame;
+        SetState(CurrentState);
+    }
+
     public void SetState(UIState state)
     {
         CurrentState = state;
