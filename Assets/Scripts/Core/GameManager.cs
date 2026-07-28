@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public readonly List<CapturedAnimalRecord> CapturedAnimals = new();
     public AnimalInstance NearbyAnimal { get; set; }
     public AnimalSpecies PetCareSpecies { get; private set; }
+    public CapturedAnimalRecord PetCareRecord { get; private set; }
 
     [SerializeField] private GameObject worldPanel;
     [SerializeField] private GameObject arCapturePanel;
@@ -57,6 +58,7 @@ public class GameManager : MonoBehaviour
     public void OpenPetCare(AnimalSpecies species)
     {
         PetCareSpecies = species;
+        PetCareRecord = null;
         SetState(UIState.PetCare);
     }
 
@@ -64,6 +66,16 @@ public class GameManager : MonoBehaviour
     {
         if (NearbyAnimal == null) return;
         OpenPetCare(NearbyAnimal.Species);
+    }
+
+    // Used by MenagerieUI/MascotaSelector to open a specific owned capture (as opposed to the
+    // species-only overloads above, which are for the not-yet-captured "nearby wild animal" flow
+    // and can't distinguish between multiple captures of the same species).
+    public void OpenPetCare(CapturedAnimalRecord record)
+    {
+        PetCareRecord = record;
+        PetCareSpecies = record != null ? record.Species : PetCareSpecies;
+        SetState(UIState.PetCare);
     }
 
     public void OpenMinigame()

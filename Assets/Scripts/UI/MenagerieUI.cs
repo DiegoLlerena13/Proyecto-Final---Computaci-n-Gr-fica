@@ -48,8 +48,7 @@ public class MenagerieUI : MonoBehaviour
             text.color = Color.black;
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-            var species = record.Species;
-            entryGO.GetComponent<Button>().onClick.AddListener(() => GameManager.Instance.OpenPetCare(species));
+            entryGO.GetComponent<Button>().onClick.AddListener(() => GameManager.Instance.OpenPetCare(record));
         }
     }
 }
