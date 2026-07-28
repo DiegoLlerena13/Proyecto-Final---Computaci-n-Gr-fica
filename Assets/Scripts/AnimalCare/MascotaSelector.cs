@@ -146,16 +146,21 @@ public class MascotaSelector : MonoBehaviour
             rb.constraints = RigidbodyConstraints.FreezeAll;
         }
 
-        Collider[] colliders = animal.GetComponentsInChildren<Collider>();
-        foreach (Collider col in colliders)
-            col.enabled = false;
-
+        // Disable every mover script BEFORE disabling colliders below - CharacterController is
+        // itself a Collider subtype, so disabling colliders first (as this used to do) left
+        // CreatureMover's Update() still calling CharacterController.Move() every frame on a
+        // component that had just been disabled out from under it, spamming
+        // "CharacterController.Move called on inactive controller" errors.
         MonoBehaviour[] scripts = animal.GetComponentsInChildren<MonoBehaviour>();
         foreach (MonoBehaviour script in scripts)
         {
             string nombreScript = script.GetType().Name;
-            if (nombreScript == "Controlador" || nombreScript == "ControladorCuidador")
+            if (nombreScript == "Controlador" || nombreScript == "ControladorCuidador" || nombreScript == "CreatureMover")
                 script.enabled = false;
         }
+
+        Collider[] colliders = animal.GetComponentsInChildren<Collider>();
+        foreach (Collider col in colliders)
+            col.enabled = false;
     }
 }
