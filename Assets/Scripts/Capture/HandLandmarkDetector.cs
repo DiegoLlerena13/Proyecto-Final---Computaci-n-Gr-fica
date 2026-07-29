@@ -17,6 +17,10 @@ public class HandLandmarkDetector : MonoBehaviour
     [SerializeField] private TextAsset anchorsCSV;
     [SerializeField] private RawImage cameraFeedImage;
 
+    [Header("Debug")]
+    [Tooltip("Draws the 21 detected hand landmarks as colored dots over cameraFeedImage, so you can check what the model is actually tracking.")]
+    [SerializeField] private bool showDebugLandmarks = true;
+
     [SerializeField] private float scoreThreshold = 0.75f;
     [SerializeField] private int inferenceIntervalFrames = 6;
 
@@ -39,6 +43,21 @@ public class HandLandmarkDetector : MonoBehaviour
 
     WebCamTexture m_WebCamTexture;
     bool m_DiagnosticLogged;
+
+    // Cached purely for the debug dot overlay below - not read by the detection/gesture pipeline.
+    Vector3[] m_LastLandmarks;
+    Texture m_LastLandmarksTexture;
+
+    // Standard 21-point hand topology (see HandGestureAnalyzer): wrist, then 4 joints per finger.
+    static readonly Color[] LandmarkColors =
+    {
+        Color.white, // 0 wrist
+        Color.red, Color.red, Color.red, Color.red, // 1-4 thumb
+        new(1f, 0.6f, 0f), new(1f, 0.6f, 0f), new(1f, 0.6f, 0f), new(1f, 0.6f, 0f), // 5-8 index
+        Color.yellow, Color.yellow, Color.yellow, Color.yellow, // 9-12 middle
+        Color.green, Color.green, Color.green, Color.green, // 13-16 ring
+        Color.cyan, Color.cyan, Color.cyan, Color.cyan, // 17-20 pinky
+    };
 
     public bool IsReady { get; private set; }
     public bool HandVisible { get; private set; }
@@ -271,7 +290,41 @@ public class HandLandmarkDetector : MonoBehaviour
             landmarkPositions[i] = new Vector3(position_ImageSpace.x, position_ImageSpace.y, landmarks[3 * i + 2]);
         }
 
+        m_LastLandmarks = landmarkPositions;
+        m_LastLandmarksTexture = texture;
+
         Analyzer?.PushFrame(landmarkPositions, Time.time);
+    }
+
+    // Draws the 21 tracked points (color-coded per finger, see LandmarkColors) over cameraFeedImage,
+    // in the exact same pixel space Detect() computed them in - so this shows precisely what the
+    // model is seeing, not an approximation. Toggle showDebugLandmarks off once you trust it.
+    void OnGUI()
+    {
+        if (!showDebugLandmarks || !HandVisible) return;
+        if (m_LastLandmarks == null || cameraFeedImage == null || m_LastLandmarksTexture == null) return;
+
+        var rectTransform = cameraFeedImage.rectTransform;
+        var rect = rectTransform.rect;
+        var canvas = cameraFeedImage.canvas;
+        var eventCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+
+        for (var i = 0; i < m_LastLandmarks.Length; i++)
+        {
+            var p = m_LastLandmarks[i];
+            var xNorm = p.x / m_LastLandmarksTexture.width;
+            var yNorm = p.y / m_LastLandmarksTexture.height;
+
+            var localPoint = new Vector3(rect.x + xNorm * rect.width, rect.y + yNorm * rect.height, 0f);
+            var worldPoint = rectTransform.TransformPoint(localPoint);
+            var screenPoint = RectTransformUtility.WorldToScreenPoint(eventCamera, worldPoint);
+            var guiPoint = new Vector2(screenPoint.x, Screen.height - screenPoint.y);
+
+            GUI.color = i < LandmarkColors.Length ? LandmarkColors[i] : Color.magenta;
+            GUI.DrawTexture(new Rect(guiPoint.x - 5f, guiPoint.y - 5f, 10f, 10f), Texture2D.whiteTexture);
+        }
+
+        GUI.color = Color.white;
     }
 
     void OnDestroy()
