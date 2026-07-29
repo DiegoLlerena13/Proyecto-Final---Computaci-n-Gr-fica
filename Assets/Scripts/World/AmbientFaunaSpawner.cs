@@ -5,17 +5,17 @@ public static class AmbientFaunaSpawner
 {
     private static readonly AnimalSpecies[] Species =
     {
-        AnimalSpecies.BirdFly, AnimalSpecies.Conejo, AnimalSpecies.Cuervo, AnimalSpecies.Paloma,
-        AnimalSpecies.PerroLadrando, AnimalSpecies.Pinguino, AnimalSpecies.SerpienteAzul,
+        AnimalSpecies.BirdFly, AnimalSpecies.Conejo, AnimalSpecies.Cuervo, AnimalSpecies.GallitoDeLasRocas,
+        AnimalSpecies.Paloma, AnimalSpecies.PerroLadrando, AnimalSpecies.Pinguino, AnimalSpecies.SerpienteAzul,
         AnimalSpecies.SerpienteBlanca, AnimalSpecies.SerpienteCorn, AnimalSpecies.SerpienteMarron,
         AnimalSpecies.SerpienteRoja, AnimalSpecies.SerpienteVerde, AnimalSpecies.YellowBird
     };
 
-    // BirdFly's source art (FreeAnimalPack/BirdFly.png) is drawn mid-flight, unlike Cuervo/
-    // Paloma/Pinguino (Crow-Idle, Pigeon-Idle, YellowBird-Idle art - all standing poses despite
-    // "bird" being in the species name) - it's the only species that should float above ground
-    // instead of being foot-aligned to it.
-    private static readonly HashSet<AnimalSpecies> FlyingSpecies = new() { AnimalSpecies.BirdFly };
+    // BirdFly's and GallitoDeLasRocas' source art (both reuse FreeAnimalPack/BirdFly.png) is drawn
+    // mid-flight, unlike Cuervo/Paloma/Pinguino (Crow-Idle, Pigeon-Idle, YellowBird-Idle art - all
+    // standing poses despite "bird" being in the species name) - these are the species that should
+    // float above ground instead of being foot-aligned to it.
+    private static readonly HashSet<AnimalSpecies> FlyingSpecies = new() { AnimalSpecies.BirdFly, AnimalSpecies.GallitoDeLasRocas };
 
     private static readonly Dictionary<AnimalSpecies, GameObject> prefabCache = new();
 

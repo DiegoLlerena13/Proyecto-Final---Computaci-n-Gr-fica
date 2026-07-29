@@ -13,6 +13,7 @@ public enum AnimalSpecies
     BirdFly,
     Conejo,
     Cuervo,
+    GallitoDeLasRocas,
     Paloma,
     PerroLadrando,
     Pinguino,
