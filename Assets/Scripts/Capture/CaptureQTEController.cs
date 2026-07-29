@@ -15,6 +15,7 @@ public class CaptureQTEController : MonoBehaviour
 
     private readonly List<Button> activeTargets = new();
     private GameObject spawnedAnimal;
+    private AnimalInstance targetAnimal;
     private int tappedCount;
 
     private void OnEnable()
@@ -36,6 +37,7 @@ public class CaptureQTEController : MonoBehaviour
 
         if (spawnedAnimal != null) Destroy(spawnedAnimal);
         spawnedAnimal = null;
+        targetAnimal = null;
 
         if (qteStage != null) qteStage.SetActive(false);
         if (mainCamera != null) mainCamera.SetActive(true);
@@ -45,7 +47,12 @@ public class CaptureQTEController : MonoBehaviour
     {
         if (GameManager.Instance == null || GameManager.Instance.NearbyAnimal == null || animalStandPoint == null) return;
 
-        var species = GameManager.Instance.NearbyAnimal.Species;
+        // Frozen for the whole minigame - AnimalProximityDetector keeps reassigning
+        // GameManager.Instance.NearbyAnimal every frame in the background, so Finish() must use
+        // this cached reference instead of re-reading NearbyAnimal once the minigame ends.
+        targetAnimal = GameManager.Instance.NearbyAnimal;
+
+        var species = targetAnimal.Species;
         var prefab = AnimalResources.Load(species);
         if (prefab == null) return;
 
@@ -89,7 +96,7 @@ public class CaptureQTEController : MonoBehaviour
 
     private void Finish()
     {
-        if (GameManager.Instance != null && GameManager.Instance.NearbyAnimal != null)
-            GameManager.Instance.OnCaptureSucceeded(GameManager.Instance.NearbyAnimal.Species);
+        if (GameManager.Instance != null && targetAnimal != null)
+            GameManager.Instance.OnCaptureSucceeded(targetAnimal);
     }
 }

@@ -111,14 +111,25 @@ public class GameManager : MonoBehaviour
     {
         string ledgerRecordId = ledger.AddCapture(species);
         CapturedAnimals.Add(new CapturedAnimalRecord(species, ledgerRecordId, icon));
-
-        if (NearbyAnimal != null && NearbyAnimal.Species == species)
-        {
-            NearbyAnimal.Captured = true;
-            NearbyAnimal.gameObject.SetActive(false);
-            NearbyAnimal = null;
-        }
-
         SetState(UIState.World);
+    }
+
+    // Preferred entry point for GestureCaptureController/CaptureQTEController: operates on the
+    // exact AnimalInstance the capture minigame targeted, cached by the caller at spawn time -
+    // NOT whatever NearbyAnimal currently points to. AnimalProximityDetector reassigns
+    // NearbyAnimal every frame based on live distance to the player, and keeps running the whole
+    // multi-second capture minigame (nothing pauses it), so by the time the minigame finishes
+    // NearbyAnimal may already point at a completely different, closer animal. Recording
+    // NearbyAnimal.Species at that point (the previous behavior) captured whatever species
+    // happened to be nearest at the end, not the one actually shown/gestured at.
+    public void OnCaptureSucceeded(AnimalInstance capturedAnimal, Sprite icon = null)
+    {
+        if (capturedAnimal == null) return;
+
+        OnCaptureSucceeded(capturedAnimal.Species, icon);
+
+        capturedAnimal.Captured = true;
+        capturedAnimal.gameObject.SetActive(false);
+        if (NearbyAnimal == capturedAnimal) NearbyAnimal = null;
     }
 }

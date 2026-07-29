@@ -58,6 +58,18 @@ public class HandGestureAnalyzer
 
     public event Action<GestureType> OnGestureRecognized;
 
+    // The owning HandLandmarkDetector's detection loop keeps running even while the capture/petting
+    // panel that reads it is inactive (Awaitable-driven, doesn't pause on GameObject.SetActive(false)
+    // - see HandLandmarkDetector.RunModelsAndDetectionLoop), so the buffer and cooldown keep absorbing
+    // whatever the camera saw in between. Without calling this on re-entry, the first few frames of a
+    // new capture attempt get judged against leftover motion history from before the panel reopened -
+    // call this from OnEnable() before subscribing, every time.
+    public void Reset()
+    {
+        buffer.Clear();
+        lastFireTime = float.NegativeInfinity;
+    }
+
     public void PushFrame(Vector3[] landmarks, float timestamp)
     {
         if (landmarks == null || landmarks.Length != KeypointCount)

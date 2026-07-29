@@ -32,6 +32,7 @@ public class GestureCaptureController : MonoBehaviour
 
     private Transform gestureCameraTransform;
     private GameObject spawnedAnimal;
+    private AnimalInstance targetAnimal;
     private HidingAnimalBehavior currentHidingBehavior;
     private int completedCount;
     private bool hasFinished;
@@ -70,6 +71,13 @@ public class GestureCaptureController : MonoBehaviour
         SpawnAnimal();
         UpdateProgressUI();
 
+        // The analyzer's rolling buffer/cooldown survive between captures (HandLandmarkDetector's
+        // detection loop keeps running even while this panel is inactive), so without this reset
+        // the first gestures of a new capture get judged against leftover motion from whatever the
+        // camera saw while the panel was closed - the likely cause of degraded/spurious detection
+        // reported after the first capture of a session.
+        handDetector?.Analyzer?.Reset();
+
         Subscribe();
 
         readyWaitRoutine = StartCoroutine(WaitForReadyOrFallback());
@@ -100,6 +108,7 @@ public class GestureCaptureController : MonoBehaviour
 
         if (spawnedAnimal != null) Destroy(spawnedAnimal);
         spawnedAnimal = null;
+        targetAnimal = null;
         currentHidingBehavior = null;
 
         if (gestureModeRoot != null) gestureModeRoot.SetActive(false);
@@ -110,7 +119,12 @@ public class GestureCaptureController : MonoBehaviour
     {
         if (GameManager.Instance == null || GameManager.Instance.NearbyAnimal == null || animalStandPoint == null) return;
 
-        var species = GameManager.Instance.NearbyAnimal.Species;
+        // Frozen for the whole minigame - AnimalProximityDetector keeps reassigning
+        // GameManager.Instance.NearbyAnimal every frame in the background, so Finish() must use
+        // this cached reference instead of re-reading NearbyAnimal once the minigame ends.
+        targetAnimal = GameManager.Instance.NearbyAnimal;
+
+        var species = targetAnimal.Species;
         var prefab = AnimalResources.Load(species);
         if (prefab == null) return;
 
@@ -364,8 +378,8 @@ public class GestureCaptureController : MonoBehaviour
     {
         Debug.Log("[GestureCaptureController] Finish() called - all required actions completed, capture succeeding.");
 
-        if (GameManager.Instance != null && GameManager.Instance.NearbyAnimal != null)
-            GameManager.Instance.OnCaptureSucceeded(GameManager.Instance.NearbyAnimal.Species);
+        if (GameManager.Instance != null && targetAnimal != null)
+            GameManager.Instance.OnCaptureSucceeded(targetAnimal);
     }
 
     // Permission denied or model load failed: hand off to the button-tap QTE fallback instead of
