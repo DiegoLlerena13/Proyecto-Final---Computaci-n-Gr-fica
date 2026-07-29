@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MascotaSelector : MonoBehaviour
 {
@@ -10,17 +11,29 @@ public class MascotaSelector : MonoBehaviour
     public TextMeshProUGUI txtEstado;
     public TextMeshProUGUI txtDescripcion;
 
+    [Header("Acariciar")]
+    public Button btnAcariciar;
+    public GameObject panelOpcionesAcariciar;
+    public GameObject panelGestoAcariciar;
+
     [Header("Vista 3D")]
     public Transform puntoSpawn;
-    public Vector3 escalaAnimal = new Vector3(2f, 2f, 2f);
+
+    // Cada especie viene con un modelo de tamaño distinto (un conejo y un ciervo no miden lo
+    // mismo en Blender). En vez de un Vector3 de escala fijo que quedaba gigante o diminuto según
+    // la especie, se normaliza cada animal a esta altura (en unidades de mundo) calculando sus
+    // renderer bounds reales - mismo patrón que usa AnimalGroundUtil para el ground-snap.
+    public float alturaObjetivoAnimal = 2f;
 
     private const int AccionMonto = 15;
     private const string EscenaMinijuegoPorDefecto = "03.Juegos";
+    private const string MensajeNoAcariciable = "Es peligroso acariciar a este animal - solo se puede observar y alimentar.";
 
     // Solo Conejo tiene minijuego propio armado hasta ahora; el resto cae al hub de Juegos.
     private static readonly Dictionary<AnimalSpecies, string> EscenasMinijuego = new()
     {
         { AnimalSpecies.Conejo, "04.Minigame_conejo" },
+        { AnimalSpecies.GallitoDeLasRocas, "05.Minigame_gallito" },
     };
 
     private List<CapturedAnimalRecord> mascotas;
@@ -71,9 +84,41 @@ public class MascotaSelector : MonoBehaviour
         var record = MascotaActual();
         if (record == null) return;
 
+        // Guard defensivo: cubre tanto el tap directo (con btnAcariciar ya deshabilitado) como la
+        // llamada que hace AcariciarGestoController.Finish() al completar el gesto - un solo lugar
+        // de verdad para la restricción por especie.
+        if (!AnimalActionRules.CanBePetByHand(record.Species))
+        {
+            txtDescripcion.text = MensajeNoAcariciable;
+            return;
+        }
+
         record.Happiness = Mathf.Min(100, record.Happiness + AccionMonto);
         ActualizarTextoEstado(record);
         txtDescripcion.text = "El animal está tranquilo y confía más en el cuidador.";
+    }
+
+    public void AbrirOpcionesAcariciar()
+    {
+        var record = MascotaActual();
+        if (record == null || !AnimalActionRules.CanBePetByHand(record.Species)) return;
+        if (panelOpcionesAcariciar != null) panelOpcionesAcariciar.SetActive(true);
+    }
+
+    public void CerrarOpcionesAcariciar()
+    {
+        if (panelOpcionesAcariciar != null) panelOpcionesAcariciar.SetActive(false);
+    }
+
+    public void AbrirGestoAcariciar()
+    {
+        if (panelOpcionesAcariciar != null) panelOpcionesAcariciar.SetActive(false);
+        if (panelGestoAcariciar != null) panelGestoAcariciar.SetActive(true);
+    }
+
+    public void CerrarGestoAcariciar()
+    {
+        if (panelGestoAcariciar != null) panelGestoAcariciar.SetActive(false);
     }
 
     public void AbrirMinijuego()
@@ -105,17 +150,26 @@ public class MascotaSelector : MonoBehaviour
             animalActual = null;
         }
 
+        // Si el jugador cambia de mascota con un panel de acariciar abierto, cerrarlos - si no,
+        // quedarían mostrando UI para el record anterior mientras el carrusel ya avanzó debajo.
+        CerrarOpcionesAcariciar();
+        CerrarGestoAcariciar();
+
         var record = MascotaActual();
         if (record == null)
         {
             txtNombre.text = "Sin mascotas";
             txtEstado.text = string.Empty;
             txtDescripcion.text = "Todavía no capturaste ningún animal. Volvé al mapa y capturá uno.";
+            if (btnAcariciar != null) btnAcariciar.interactable = false;
             return;
         }
 
+        bool acariciable = AnimalActionRules.CanBePetByHand(record.Species);
+        if (btnAcariciar != null) btnAcariciar.interactable = acariciable;
+
         txtNombre.text = record.Species.ToString();
-        txtDescripcion.text = $"Tu {record.Species} capturado.";
+        txtDescripcion.text = acariciable ? $"Tu {record.Species} capturado." : MensajeNoAcariciable;
         ActualizarTextoEstado(record);
 
         var prefab = AnimalResources.Load(record.Species);
@@ -126,13 +180,41 @@ public class MascotaSelector : MonoBehaviour
         }
 
         animalActual = Instantiate(prefab, puntoSpawn.position, puntoSpawn.rotation);
-        animalActual.transform.localScale = escalaAnimal;
+        AjustarEscalaYApoyo(animalActual, puntoSpawn.position);
         PrepararAnimalParaVista(animalActual);
     }
 
     private void ActualizarTextoEstado(CapturedAnimalRecord record)
     {
         txtEstado.text = $"Hambre: {record.Hunger}%  ·  Felicidad: {record.Happiness}%";
+    }
+
+    // Escala el animal para que su altura real (renderer bounds, no un valor a ojo) coincida con
+    // alturaObjetivoAnimal, y lo reposiciona para que sus pies queden apoyados en puntoBase - así
+    // el mismo escenario sirve para un conejo chico o un ciervo grande sin que ninguno quede
+    // cortado por la cámara ni flotando/hundido en el piso.
+    private void AjustarEscalaYApoyo(GameObject animal, Vector3 puntoBase)
+    {
+        Renderer[] renderers = animal.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0) return;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        if (bounds.size.y > 0.0001f)
+        {
+            float factor = alturaObjetivoAnimal / bounds.size.y;
+            animal.transform.localScale *= factor;
+
+            renderers = animal.GetComponentsInChildren<Renderer>();
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        float desnivel = puntoBase.y - bounds.min.y;
+        animal.transform.position += new Vector3(0f, desnivel, 0f);
     }
 
     private void PrepararAnimalParaVista(GameObject animal)
