@@ -13,12 +13,17 @@ public class VizcachaMiniGame3D : MonoBehaviour
     [Header("Opcional: permitir teclado en PC para probar")]
     public bool permitirTeclado = true;
 
+    [Header("Modo infinito")]
+    public float alturaMuerte = -6f;
+
     private Rigidbody rb;
     private float movimientoHorizontal = 0f;
+    private VizcachaGameManager gameManager;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        gameManager = FindObjectOfType<VizcachaGameManager>();
 
         rb.constraints =
             RigidbodyConstraints.FreezePositionZ |
@@ -29,6 +34,9 @@ public class VizcachaMiniGame3D : MonoBehaviour
 
     void Update()
     {
+        if (gameManager != null && !gameManager.juegoActivo)
+            return;
+
         if (permitirTeclado)
         {
             LeerTecladoNuevoInputSystem();
@@ -41,6 +49,11 @@ public class VizcachaMiniGame3D : MonoBehaviour
         );
 
         GirarVisualmente();
+
+        if (transform.position.y < alturaMuerte)
+        {
+            gameManager?.GameOver();
+        }
     }
 
     private void LeerTecladoNuevoInputSystem()

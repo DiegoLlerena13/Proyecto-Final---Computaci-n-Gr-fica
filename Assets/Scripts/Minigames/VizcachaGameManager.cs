@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class PinguinoGameManager : MonoBehaviour
+public class VizcachaGameManager : MonoBehaviour
 {
-    private const string HighScoreKey = "PinguinoHighScore";
+    private const string HighScoreKey = "VizcachaHighScore";
 
     [Header("Estado")]
     public bool juegoActivo = true;
@@ -12,13 +12,14 @@ public class PinguinoGameManager : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI txtPuntaje;
     public GameObject panelGameOver;
+    public TextMeshProUGUI txtMensajeFin;
 
-    public int ObstaclesPassed { get; private set; }
+    public int PlataformasPasadas { get; private set; }
 
     void Start()
     {
         juegoActivo = true;
-        ObstaclesPassed = 0;
+        PlataformasPasadas = 0;
 
         if (panelGameOver != null)
             panelGameOver.SetActive(false);
@@ -26,18 +27,18 @@ public class PinguinoGameManager : MonoBehaviour
         ActualizarTexto();
     }
 
-    // Called by ObstacleMover3D the moment an obstacle crosses the player's fixed X.
-    public void RegisterObstaclePassed()
+    // Called by PlatformSpawner3D each time a platform falls behind the player.
+    public void RegisterPlatformPassed()
     {
         if (!juegoActivo) return;
-        ObstaclesPassed++;
+        PlataformasPasadas++;
         ActualizarTexto();
     }
 
     private void ActualizarTexto()
     {
         if (txtPuntaje != null)
-            txtPuntaje.text = "Puntos: " + ObstaclesPassed;
+            txtPuntaje.text = "Plataformas: " + PlataformasPasadas;
     }
 
     public void GameOver()
@@ -45,11 +46,11 @@ public class PinguinoGameManager : MonoBehaviour
         if (!juegoActivo) return;
         juegoActivo = false;
 
-        int highScore = Mathf.Max(ObstaclesPassed, PlayerPrefs.GetInt(HighScoreKey, 0));
+        int highScore = Mathf.Max(PlataformasPasadas, PlayerPrefs.GetInt(HighScoreKey, 0));
         PlayerPrefs.SetInt(HighScoreKey, highScore);
 
-        if (txtPuntaje != null)
-            txtPuntaje.text = $"Puntos: {ObstaclesPassed}  -  Mejor: {highScore}";
+        if (txtMensajeFin != null)
+            txtMensajeFin.text = $"Plataformas: {PlataformasPasadas}  -  Mejor: {highScore}";
 
         if (panelGameOver != null)
             panelGameOver.SetActive(true);
@@ -57,7 +58,7 @@ public class PinguinoGameManager : MonoBehaviour
 
     public void Reintentar()
     {
-        SceneManager.LoadScene("06.Minigame_pinguino");
+        SceneManager.LoadScene("04.Minigame_conejo");
     }
 
     public void VolverAJuegos()

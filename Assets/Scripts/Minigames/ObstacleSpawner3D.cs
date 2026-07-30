@@ -7,9 +7,16 @@ public class ObstacleSpawner3D : MonoBehaviour
 
     [Header("Spawn")]
     public float tiempoEntreObstaculos = 1.5f;
+    public float minSpawnInterval = 0.7f;
+    public float spawnIntervalDecreasePerObstacle = 0.03f;
     public float posicionX = 6f;
     public float minY = -3f;
     public float maxY = 3f;
+
+    [Header("Velocidad (rampa de dificultad)")]
+    public float velocidadBase = 4f;
+    public float velocidadMaxima = 9f;
+    public float incrementoVelocidadPorObstaculo = 0.15f;
 
     private float timer = 0f;
     private PinguinoGameManager gameManager;
@@ -26,11 +33,23 @@ public class ObstacleSpawner3D : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        if (timer >= tiempoEntreObstaculos)
+        if (timer >= CurrentSpawnInterval())
         {
             CrearObstaculo();
             timer = 0f;
         }
+    }
+
+    private float CurrentSpawnInterval()
+    {
+        int pasados = gameManager != null ? gameManager.ObstaclesPassed : 0;
+        return Mathf.Max(minSpawnInterval, tiempoEntreObstaculos - pasados * spawnIntervalDecreasePerObstacle);
+    }
+
+    private float CurrentSpeed()
+    {
+        int pasados = gameManager != null ? gameManager.ObstaclesPassed : 0;
+        return Mathf.Min(velocidadMaxima, velocidadBase + pasados * incrementoVelocidadPorObstaculo);
     }
 
     private void CrearObstaculo()
@@ -43,10 +62,8 @@ public class ObstacleSpawner3D : MonoBehaviour
 
         Vector3 posicion = new Vector3(posicionX, yRandom, 0f);
 
-        Instantiate(
-            obstaculos[indice],
-            posicion,
-            Quaternion.identity
-        );
+        GameObject instancia = Instantiate(obstaculos[indice], posicion, Quaternion.identity);
+        ObstacleMover3D mover = instancia.GetComponent<ObstacleMover3D>();
+        if (mover != null) mover.Configure(CurrentSpeed());
     }
 }

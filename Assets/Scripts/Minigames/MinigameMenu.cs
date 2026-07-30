@@ -29,6 +29,20 @@ public class MinigameMenu : MonoBehaviour
         ActualizarTexto();
     }
 
+    public void SeleccionarBosque()
+    {
+        escenaSeleccionada = "07.Minigame_bosque";
+        nombreSeleccionado = "Escapa del tigre";
+        ActualizarTexto();
+    }
+
+    public void SeleccionarGallito()
+    {
+        escenaSeleccionada = "05.Minigame_gallito";
+        nombreSeleccionado = "Vuelo del gallito de las rocas";
+        ActualizarTexto();
+    }
+
     public void SeleccionarTaruca()
     {
         escenaSeleccionada = ""; 
