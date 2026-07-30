@@ -24,14 +24,14 @@ public class MinigameMenu : MonoBehaviour
 
     public void SeleccionarPinguino()
     {
-        escenaSeleccionada = "";
-        nombreSeleccionado = "Deslizamiento costero - Próximamente";
+        escenaSeleccionada = "06.Minigame_pinguino";
+        nombreSeleccionado = "Deslizamiento costero";
         ActualizarTexto();
     }
 
     public void SeleccionarTaruca()
     {
-        escenaSeleccionada = "";
+        escenaSeleccionada = ""; 
         nombreSeleccionado = "Ruta de la taruca - Próximamente";
         ActualizarTexto();
     }
