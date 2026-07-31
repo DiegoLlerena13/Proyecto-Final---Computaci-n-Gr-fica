@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 [System.Serializable]
@@ -21,12 +22,18 @@ public class EcoDexData
 
     [TextArea(2, 4)]
     public string datoCurioso;
+
+    [Header("Imagen del animal")]
+    public Sprite imagenAnimal;
 }
 
 public class EcoDexManager : MonoBehaviour
 {
     [Header("Datos de animales")]
     public EcoDexData[] animales;
+
+    [Header("Imagen UI")]
+    public Image imgAnimalGrande;
 
     [Header("Textos UI")]
     public TextMeshProUGUI txtNombre;
@@ -52,30 +59,38 @@ public class EcoDexManager : MonoBehaviour
 
         if (indice < 0 || indice >= animales.Length)
         {
-            Debug.LogWarning("Índice de animal fuera de rango: " + indice);
-            return;
-        }
-
-        if (txtNombre == null ||
-            txtNombreCientifico == null ||
-            txtHabitat == null ||
-            txtAlimentacion == null ||
-            txtEstado == null ||
-            txtAmenazas == null ||
-            txtDatoCurioso == null)
-        {
-            Debug.LogError("Falta asignar uno o más textos en EcoDexManager.");
+            Debug.LogWarning("Índice fuera de rango: " + indice);
             return;
         }
 
         EcoDexData animal = animales[indice];
 
-        txtNombre.text = animal.nombre;
-        txtNombreCientifico.text = "Nombre científico: " + animal.nombreCientifico;
-        txtHabitat.text = "Hábitat: " + animal.habitat;
-        txtAlimentacion.text = "Alimentación: " + animal.alimentacion;
-        txtEstado.text = "Estado: " + animal.estado;
-        txtAmenazas.text = "Amenazas: " + animal.amenazas;
-        txtDatoCurioso.text = "Dato curioso: " + animal.datoCurioso;
+        if (txtNombre != null)
+            txtNombre.text = animal.nombre;
+
+        if (txtNombreCientifico != null)
+            txtNombreCientifico.text = "Nombre científico: " + animal.nombreCientifico;
+
+        if (txtHabitat != null)
+            txtHabitat.text = "Hábitat: " + animal.habitat;
+
+        if (txtAlimentacion != null)
+            txtAlimentacion.text = "Alimentación: " + animal.alimentacion;
+
+        if (txtEstado != null)
+            txtEstado.text = "Estado: " + animal.estado;
+
+        if (txtAmenazas != null)
+            txtAmenazas.text = "Amenazas: " + animal.amenazas;
+
+        if (txtDatoCurioso != null)
+            txtDatoCurioso.text = "Dato curioso: " + animal.datoCurioso;
+
+        if (imgAnimalGrande != null)
+        {
+            imgAnimalGrande.sprite = animal.imagenAnimal;
+            imgAnimalGrande.enabled = animal.imagenAnimal != null;
+            imgAnimalGrande.preserveAspect = true;
+        }
     }
 }

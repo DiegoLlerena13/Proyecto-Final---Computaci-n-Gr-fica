@@ -28,6 +28,31 @@ public class SceneLoader : MonoBehaviour
         SceneManager.LoadScene("04.Minigame_conejo");
     }
 
+    public void IrMinijuegoPinguino()
+    {
+        SceneManager.LoadScene("06.Minigame_pinguino");
+    }
+
+    public void IrMinijuegoGallito()
+    {
+        SceneManager.LoadScene("05.Minigame_gallito");
+    }
+
+    public void IrMinijuegoSerpiente()
+    {
+        SceneManager.LoadScene("03.Juegos");
+    }
+
+    public void IrMinijuegoTaruca()
+    {
+        SceneManager.LoadScene("03.Juegos");
+    }
+
+    public void IrMinijuegoPerrito()
+    {
+        SceneManager.LoadScene("03.Juegos");
+    }
+
     public void VolverAJuegos()
     {
         SceneManager.LoadScene("03.Juegos");
