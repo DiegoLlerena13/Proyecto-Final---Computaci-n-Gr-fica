@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -36,9 +37,15 @@ public class MascotaSelector : MonoBehaviour
         { AnimalSpecies.GallitoDeLasRocas, "05.Minigame_gallito" },
     };
 
+    // Nombre del hueso de la cabeza en el rig ithappy (typo del propio asset, presente en
+    // Deer/Dog/Kitty/Chicken/Horse/Pinguin - Tiger no lo tiene, así que para esa especie el gesto
+    // simplemente no se reproduce en vez de romper algo).
+    private const string NombreHuesoCabeza = "scull";
+
     private List<CapturedAnimalRecord> mascotas;
     private int indiceActual;
     private GameObject animalActual;
+    private Coroutine gestoCabezaRoutine;
 
     private void OnEnable()
     {
@@ -96,6 +103,7 @@ public class MascotaSelector : MonoBehaviour
         record.Happiness = Mathf.Min(100, record.Happiness + AccionMonto);
         ActualizarTextoEstado(record);
         txtDescripcion.text = "El animal está tranquilo y confía más en el cuidador.";
+        ReproducirGestoCabeza();
     }
 
     public void AbrirOpcionesAcariciar()
@@ -148,6 +156,11 @@ public class MascotaSelector : MonoBehaviour
         {
             Destroy(animalActual);
             animalActual = null;
+        }
+        if (gestoCabezaRoutine != null)
+        {
+            StopCoroutine(gestoCabezaRoutine);
+            gestoCabezaRoutine = null;
         }
 
         // Si el jugador cambia de mascota con un panel de acariciar abierto, cerrarlos - si no,
@@ -244,5 +257,50 @@ public class MascotaSelector : MonoBehaviour
         Collider[] colliders = animal.GetComponentsInChildren<Collider>();
         foreach (Collider col in colliders)
             col.enabled = false;
+    }
+
+    // El Animator Controller de ithappy solo tiene el blend tree de locomoción (params "Vert"/
+    // "State"), sin ningún estado dedicado de reacción - así que el gesto de cariño se hace
+    // rotando el hueso de la cabeza directamente por script en vez de por Animator.
+    private void ReproducirGestoCabeza()
+    {
+        if (animalActual == null) return;
+
+        Transform cabeza = BuscarHijoPorNombre(animalActual.transform, NombreHuesoCabeza);
+        if (cabeza == null) return;
+
+        if (gestoCabezaRoutine != null) StopCoroutine(gestoCabezaRoutine);
+        gestoCabezaRoutine = StartCoroutine(AnimarCabeza(cabeza));
+    }
+
+    private static Transform BuscarHijoPorNombre(Transform raiz, string nombre)
+    {
+        foreach (Transform hijo in raiz.GetComponentsInChildren<Transform>(true))
+        {
+            if (string.Equals(hijo.name, nombre, System.StringComparison.OrdinalIgnoreCase))
+                return hijo;
+        }
+        return null;
+    }
+
+    private IEnumerator AnimarCabeza(Transform cabeza)
+    {
+        Quaternion rotacionOriginal = cabeza.localRotation;
+        const float amplitudGrados = 18f;
+        const float duracion = 0.9f;
+        float tiempo = 0f;
+
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            float t = tiempo / duracion;
+            // Vaivén izquierda-derecha que se atenúa hacia el final (2 ciclos completos).
+            float angulo = Mathf.Sin(t * Mathf.PI * 4f) * amplitudGrados * (1f - t);
+            cabeza.localRotation = rotacionOriginal * Quaternion.Euler(0f, angulo, 0f);
+            yield return null;
+        }
+
+        cabeza.localRotation = rotacionOriginal;
+        gestoCabezaRoutine = null;
     }
 }

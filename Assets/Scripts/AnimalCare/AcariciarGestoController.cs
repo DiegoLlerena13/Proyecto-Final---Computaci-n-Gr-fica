@@ -21,6 +21,7 @@ public class AcariciarGestoController : MonoBehaviour
     private static readonly Color HandSeenColor = new(0.4f, 0.85f, 1f, 0.9f);
     private static readonly Color HandFlashColor = new(0.3f, 1f, 0.4f, 1f);
     private const float FlashSeconds = 0.5f;
+    private const string MensajeCargando = "Preparando la cámara...";
     private const string MensajeEspera = "Mostrá tu mano abierta y quieta frente a la cámara para acariciar.";
     private const string MensajeSinCamara = "No se pudo activar la cámara. Cerrá esta ventana y usá 'En pantalla'.";
 
@@ -34,7 +35,12 @@ public class AcariciarGestoController : MonoBehaviour
     {
         completedCount = 0;
         hasFinished = false;
-        if (mensajeText != null) mensajeText.text = MensajeEspera;
+        // Show a distinct "loading" message until the detector is actually ready - the webcam +
+        // Sentis model take a few seconds to start on every fresh open, and PushFrame() never
+        // runs during that window, so gestures made while MensajeEspera was shown too early were
+        // silently dropped and looked like "detection isn't counting."
+        if (mensajeText != null)
+            mensajeText.text = (handDetector != null && handDetector.IsReady) ? MensajeEspera : MensajeCargando;
         if (handIndicatorImage != null) handIndicatorImage.color = HandIdleColor;
         UpdateProgressUI();
 
@@ -91,6 +97,7 @@ public class AcariciarGestoController : MonoBehaviour
         {
             if (handDetector != null && handDetector.IsReady)
             {
+                if (mensajeText != null) mensajeText.text = MensajeEspera;
                 readyWaitRoutine = null;
                 yield break;
             }
