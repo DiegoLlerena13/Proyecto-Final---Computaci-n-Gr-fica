@@ -38,6 +38,11 @@ public class SceneLoader : MonoBehaviour
         SceneManager.LoadScene("05.Minigame_gallito");
     }
 
+    public void IrMinijuegoBosque()
+    {
+        SceneManager.LoadScene("07.Minigame_bosque");
+    }
+
     public void IrMinijuegoSerpiente()
     {
         SceneManager.LoadScene("03.Juegos");
